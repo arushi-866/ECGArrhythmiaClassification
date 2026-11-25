@@ -1,76 +1,202 @@
-# Deep Learning-Based ECG Arrhythmia Classification with Explainable AI
+## ECG-Arrhythmia-classification
+During this work I was inspired from this paper https://arxiv.org/pdf/1804.06812.pdf in which they classify ECG into seven categories, one being normal and the other six being different types of arrhythmia using convolutional neural network.
+Using a **Ensemble learnig**  techinque, which combines the result of several classifiers to get one only.
 
-## Title
-Deep Learning-Based ECG Arrhythmia Classification with Explainable AI
+in this case two classifiers were used:
 
-## Problem Statement
-Cardiac arrhythmias are abnormalities in the normal rhythm or electrical activity of the heart and are commonly identified through electrocardiogram (ECG) signals. Manual analysis of ECG recordings can be time-consuming and requires domain expertise. This project aims to investigate the use of deep learning techniques for automated classification of ECG heartbeats into different arrhythmia categories.
+- Convolutional neural networks with 11 hidden layers and an accuracy equal to 95.93%
+- Artificial neural networks with just 1 hidden layers and an accuracy equal to 96.89%
 
-## Proposed Methodology
-The proposed system will use the MIT-BIH Arrhythmia Database as the primary dataset. ECG recordings will undergo preprocessing, including noise removal, normalization, R-peak detection and heartbeat segmentation. The segmented ECG signals will then be used to train and compare different machine learning/deep learning models, primarily Artificial Neural Networks and Convolutional Neural Networks.
+The final result, obtained applied the weighted average, using f-measure, between the two results, is an accuracy equal to 97.86%
 
-The project will investigate both direct 1D ECG-signal representations and, where appropriate, image-based ECG representations. Since ECG datasets commonly exhibit significant class imbalance, techniques such as class weighting, oversampling and data augmentation will be investigated.
 
-Model performance will be evaluated using accuracy, precision, recall, F1-score, specificity and confusion matrices, with particular emphasis on minority-class performance.
 
-To improve interpretability, Explainable AI techniques such as Grad-CAM, SHAP or Integrated Gradients will be investigated to identify the portions of the ECG signal that contribute most strongly to model predictions.
+## Convolutional Neural Network
 
-A lightweight Streamlit-based interface may be developed to demonstrate the final trained model by allowing an ECG signal to be uploaded and displaying the predicted class along with an interpretable visualization.
+### Convert Signal to Image
 
-## Objectives
-1. To preprocess and analyze ECG signals from a publicly available benchmark dataset.
-2. To develop deep learning models for automated arrhythmia classification.
-3. To investigate the effect of class imbalance and appropriate mitigation techniques.
-4. To compare different ECG representations and classification architectures.
-5. To evaluate the models using clinically relevant classification metrics.
-6. To investigate Explainable AI techniques for interpreting model predictions.
-7. To develop a prototype interface for demonstrating the proposed system.
+Convolutional neural networks required images as input, therefore, I transformed signals into ECG images by plotting each ECG beat as an individual 128 x 128 grayscale image.
 
-## Expected Outcome
-The expected outcome is a comparative and interpretable deep learning framework capable of classifying ECG heartbeats into predefined arrhythmia categories with quantitative evaluation of its performance. The project will also investigate whether the regions highlighted by explainability techniques correspond to meaningful ECG waveform characteristics.
+MIT-BIH provides an additional file containing information about Q-wave peak.
 
-> Note: The proposed system is intended as an academic research prototype and is not intended to replace professional medical diagnosis.
+Thus we create image for each Q-wave using thi formula:
 
-## Project Overview
-This repository contains the implementation of a deep learning-based ECG arrhythmia classification pipeline using both Artificial Neural Networks (ANNs) and Convolutional Neural Networks (CNNs). The project focuses on preprocessing ECG signals, training classification models, and exploring explainability for model interpretation.
 
-## Repository Structure
-- `ann/` - Artificial Neural Network implementation
-- `cnn/` - Convolutional Neural Network implementation
-- `dataset/` - Dataset loading and preprocessing utilities
-- `utilities/` - Helper functions, labels, and result handling
-- `requirements.txt` - Python dependencies
 
-## Tech Stack
-- Python
-- TensorFlow / Keras
-- NumPy
-- Pandas
-- Matplotlib
-- Scikit-learn
-- Streamlit (optional prototype interface)
+<div style="text-align:center">
+    <img src ="media/formula.png"/>
+</div>
 
-## Setup
-1. Clone the repository.
-2. Create a virtual environment.
-3. Install dependencies:
 
-```bash
-pip install -r requirements.txt
+
+
+
+<div style="text-align:center">
+    <img src ="media/signal_to_img.png"/>
+</div>
+
+
+### Classes labels
+
+As a result, we obtained 100,000 images from the MIT-BIH arrhythmia
+database where each image is one of eight ECG beat types.
+
+<div style="text-align:center">
+    <img src ="media/beats.png"/>
+</div>
+
+
+
+### Data Augmentation
+
+Data augmentation is one of the key benefits of using images as input data.
+The majority of previous ECG arrhythmia works could not manually add an data into training set since the distortion of single ECG signal may downgrade the performance in the test set.
+
+Transformation:
+
+- Rotation (-30°, +30°)
+- Flip (Horizontal, Vertical, Horizontal-Vertical)
+- Cropping
+
+
+
+<div style="text-align:center">
+    <img src ="media/augmentation.png"/>
+</div>
+
+
+### Remove Noise
+
+In orderd to remove noise from each imges it used **Piecewise Aggregate Approximation** algorithm, which simply means that in order to reduce the dimensionality from *n* to *M*, we first divide the original time-series into *M* equally sized frames and secondly compute the mean values for each frame. The sequence assembled from the mean values is the PAA approximation (i.e., transform) of the original time-series.
+
+
+
+<div style="text-align:center">
+    <img src ="media/remove_noise.jpg"/>
+</div>
+
+
+
+
+
+
+### Convolutional Neural Networks Struction
+
+<div style="text-align:center">
+    <img src ="media/layers.png"/>
+</div>
+
+
+## Artificial Neural Network
+
+
+
+<div style="text-align:center">
+    <img src ="media/ann.png"/>
+</div>
+Artificial neural network proposed is formed just by an hidden layer with one hundred  neurons.
+
+
+
+## Models
+
+Here is the link to the models: https://drive.google.com/open?id=1NOO7zrl6BClrGPxItWrbPI8HK1Xza6zb
+
+
+
+## Result
+
+The ECG arrhythmia recordings used in this paper are obtained from the MITBIH database. 
+
+The database contains 48 half-hour ECG recordings collected from 47 patients between 1975 and 1979. 
+
+The ECG recording is sampled at 360 samples per second. There are approximately 110,000 ECG beats in MIT-BIH database with 15 different types of arrhythmia including normal.
+
+Dataset has been divided i three parts:
+
+- Training set (70%)
+- Validation set (15%)
+-  Test set (15%)
+
+The network has been traindend for 100 epochs for 10 hours.
+
+
+
+### Confusion matrix (Test set)
+
+|         | VEB        | PAB          | RBB           | PVC          | NOR        | LBB          | APC       | VFW       |
+| ------- | ---------- | ------------ | ------------- | ------------ | ---------- | ------------ | --------- | --------- |
+| **VEB** | **302,00** | 1,00         | 12,00         | 0,00         | 5,00       | 2,00         | 0,00      | 1,00      |
+| **PAB** | 0,00       | **1.151,00** | 1,00          | 0,00         | 5,00       | 0,00         | 0,00      | 1,00      |
+| **RBB** | 77,00      | 56,00        | **11.188,00** | 7,00         | 62,00      | 38,00        | 3,00      | 7,00      |
+| **PVC** | 0,00       | 0,00         | 3,00          | **1.040,00** | 3,00       | 0,00         | 1,00      | 0,00      |
+| **NOR** | 1,00       | 3,00         | 44,00         | 6,00         | **990,00** | 0,00         | 0,00      | 5,00      |
+| **LBB** | 1,00       | 0,00         | 4,00          | 0,00         | 1,00       | **1.049,00** | 0,00      | 0,00      |
+| **APC** | 0,00       | 0,00         | 0,00          | 0,00         | 0,00       | 0,00         | **12,00** | 0,00      |
+| **VFW** | 1,00       | 0,00         | 1,00          | 1,00         | 4,00       | 0,00         | 0,00      | **57,00** |
+
+​     
+
+### Conclusion 
+
+So far the best result achieved is **acc: 97.86%**
+
+
+
+## Local Installation
+
+### Clone the repo
+```shell
+$ git clone https://github.com/lorenzobrusco/ECGNeuralNetwork.git
 ```
 
-4. Run the training scripts from the project modules.
 
-## Usage
-The project can be used to:
-- load ECG signal data,
-- segment heartbeats,
-- train ANN/CNN classifiers,
-- evaluate model performance,
-- inspect explainability outputs.
 
-## Notes
-This is an academic prototype for research and learning, and should not be used as a substitute for professional clinical diagnosis.
 
-## License
-This project is intended for academic and research purposes.
+### Download dataset
+
+```shell
+wget --mirror --no-parent https://www.physionet.org/physiobank/database/mitdb/
+```
+
+
+
+### Install requirements
+
+```shell
+$ pip install -r requirements.txt
+```
+
+Make sure you have the following installed:
+- Werkzeug
+- Flask
+- numpy
+- Keras
+- gevent
+- pillow
+- h5py
+- tensorflow
+- opencv-python
+- biosppy
+- wfdb
+- tqdm
+
+
+
+
+### Run with Python
+
+Python 2.7 or 3.5+ are supported and tested.
+
+```shell
+$ python ecgnn.py
+```
+
+
+
+### Create Images
+
+Run this script to create the dataset
+```shell
+$ python convert_signal_img.py
+```
